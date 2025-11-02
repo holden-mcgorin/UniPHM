@@ -20,8 +20,8 @@
 </div>
 
 <div align="center">
-    <a href="https://gitee.com/holdenmcgorin/FastPHM" target="_blank">Gitee</a> •
-    <a href="https://github.com/holden-mcgorin/FastPHM" target="_blank">GitHub</a>
+    <a href="https://gitee.com/holdenmcgorin/UniPHM" target="_blank">Gitee</a> •
+    <a href="https://github.com/holden-mcgorin/UniPHM" target="_blank">GitHub</a>
 </div>
 
 ###  
