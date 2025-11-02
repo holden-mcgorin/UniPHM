@@ -1,16 +1,16 @@
 <div align="center">
-    <h1>⚡ FastPHM ⚡</h1>
+  <img src="image/UniPHM-logo.png" alt="UniPHM" width="400">
 </div>
 
-<div align="center"><h3>✨ 
-快速上手、快速运行的 PHM 实验框架！✨</h3></div>
+<div align="center">
+<h3>🔍 A Unified Framework for Prognostics and Health Management Tasks</h3>
+</div>
 
 <div align="center">
 
 [![GPLv3 License](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0)
-[![Gitee star](https://gitee.com/holdenmcgorin/FastPHM/badge/star.svg?theme=dark)](https://gitee.com/holdenmcgorin/FastPHM/stargazers)
-[![GitHub stars](https://img.shields.io/github/stars/holden-mcgorin/FastPHM.svg?style=social)](https://github.com/holden-mcgorin/FastPHM/stargazers)
-
+[![Gitee star](https://gitee.com/holdenmcgorin/UniPHM/badge/star.svg?theme=dark)](https://gitee.com/holdenmcgorin/UniPHM/stargazers)
+[![GitHub stars](https://img.shields.io/github/stars/holden-mcgorin/UniPHM.svg?style=social)](https://github.com/holden-mcgorin/UniPHM/stargazers)
 </div>
 
 <div align="center">
@@ -25,11 +25,12 @@
 </div>
 
 ###  
-> 本框架面向故障预测与健康管理（PHM）领域，专为基于深度学习方法的 PHM 实验（如**剩余使用寿命（RUL）预测**、**故障诊断**、**异常检测**等任务）设计，旨在提供一个高效、易用、低资源消耗的实验平台，帮助用户快速上手并搭建 PHM 相关实验流程，大幅简化代码开发工作，提高研究与开发效率。  
-> 本项目将持续更新，逐步集成基于该框架实现的论文复现案例，欢迎大家 ⭐star 项目并多多交流！
+> 1. **UniPHM** (Unified PHM Framework) 面向故障预测与健康管理（PHM, Prognostics and Health Management）领域，专为基于深度学习方法的多种 PHM 任务（如 **剩余使用寿命预测、故障诊断、异常检测** 等）设计。   
+> 2. 框架旨在提供一个**统一、通用、模块化**的研究与实验平台，统一数据处理、模型训练与性能评估流程，简化实验构建，提升研究与开发效率，为研究者提供结构清晰、可扩展的工具，支持不同任务类型的实验开发与对比研究。   
+> 3. 本项目将持续更新，逐步集成基于 UniPHM 实现的论文复现与案例研究，欢迎大家 ⭐Star 项目并积极交流！   
 
 ## 🚀    功能概览
-- ✅ **兼容多种深度学习框架**：支持 PyTorch、TensorFlow、Pyro 等主流框架灵活构建模型
+- ✅ **兼容多种深度学习框架**：支持 PyTorch（主要）、TensorFlow、Pyro 等主流框架灵活构建模型
 
 - 📦 **数据集自动导入**：内置支持 XJTU-SY、PHM2012、C-MAPSS、PHM2008 等常用数据集
 
@@ -63,32 +64,25 @@
 只需十几行代码，即可完成端到端实验流程：
 
 ```python
-# Step 1: Initialize the data loader and labeler
-data_loader = CMAPSSLoader('D:\\data\\dataset\\CMAPSSData')
-labeler = TurbofanRulLabeler(window_size=30, max_rul=130)
+# Step 1: Load raw data
+data_loader = XJTULoader('D:\\data\\dataset\\XJTU-SY_Bearing_Datasets')
+bearing = data_loader.load_entity('Bearing1_1')
 
-# Step 2.1: Load and label the training dataset
-turbofans_train = data_loader.batch_load('FD001_train', columns_to_drop=[0, 1, 2, 3, 4, 8, 9, 13, 19, 21, 22])
-train_set = Dataset()
-for turbofan in turbofans_train:
-    train_set.add(labeler(turbofan))
+# Step 2: Construct dataset
+labeler = BearingRulLabeler(2048)
+dataset = labeler.label(bearing, 'Horizontal Vibration')
+train_set, test_set = dataset.split_by_ratio(0.7)
 
-# Step 2.2: Load and label the test dataset
-turbofans_test = data_loader.batch_load('FD001_test', columns_to_drop=[0, 1, 2, 3, 4, 8, 9, 13, 19, 21, 22])
-test_set = Dataset()
-for turbofan in turbofans_test:
-    test_set.add(labeler(turbofan))
-
-# Step 3: Initialize the model and trainer, then begin training
-model = MyLSTM()
+# Step 3: Train model
+model = CNN(input_size=2048, output_size=1)
 trainer = BaseTrainer()
 trainer.train(model, train_set)
 
-# Step 4: Evaluate the trained model on the test dataset
+# Step 4: Test model
 tester = BaseTester()
 result = tester.test(model, test_set)
 
-# Step 5: Configure evaluation metrics and compute performance scores
+# Step 5: Evaluate results
 evaluator = Evaluator()
 evaluator.add(MAE(), MSE(), RMSE(), PercentError(), PHM2012Score(), PHM2008Score())
 evaluator(test_set, result)
@@ -97,7 +91,7 @@ evaluator(test_set, result)
 在添加可视化代码和其他功能组件后，程序在 CMD 环境中的运行效果如下所示。  
 （ 该示例展示程序在 CMD 环境下的运行过程。实际上，在本地开发时，推荐使用如 PyCharm、VSCode、Jupyter Notebook 等集成开发环境（IDE））
 
-![demo](show.gif)
+![demo](image/show.gif)
 
 
 ## 📚 论文复现
@@ -109,19 +103,10 @@ evaluator(test_set, result)
 
 整理中
 
-[//]: # (| 论文标题 | 出处 | 方法关键词 | 数据集 | 复现文件路径 |)
-
-[//]: # (|----------|------|------------|--------|------------------|)
-
-[//]: # (| A BiGRU method for RUL prediction | Measurement, 2020 | BiGRU | C-MAPSS | `reproduction/Bigru_RUL.ipynb` |)
-
-[//]: # (| Prognostics uncertainty using Bayesian deep learning | IEEE TIE, 2019 | Bayesian DL | C-MAPSS | `reproduction/Bayesian_Uncertainty.py` |)
-
-
 ## 📂    文件结构说明
-- fastphm —— 框架代码
+- uniphm —— 框架代码
 - doc —— 框架详细说明文档（编写自定义组件时建议查看）
-- example —— 试验代码示例（原生python）
+- example —— 示例代码（原生python）
 
 ### 📦 数据集来源
 
